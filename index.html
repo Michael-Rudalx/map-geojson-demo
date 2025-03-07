@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶文化地图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 900px; height: 600px;"></div>
+
+    <script>
+        let chart = echarts.init(document.getElementById('map'));
+        let boundingCoords = [[73.557701,18.159306],[134.773926,53.560860]];
+
+        // 加载 GeoJSON（茶区划分）
+        fetch("https://cdn.jsdelivr.net/gh/Michael-Rudalx/map-geojson-demo@master/releases/download/xqxdata/tea_nonan.geojson")//tea_nonan.geojson
+        .then(response => {
+                console.log("GeoJSON 请求状态:", response.status);
+                return response.json();
+            })
+            .then(geoJson => {
+                console.log("GeoJSON 数据:", geoJson); // 调试用
+                echarts.registerMap("tea_zones", geoJson);
+
+                fetch("https://cdn.jsdelivr.net/gh/Michael-Rudalx/map-geojson-demo@master/releases/download/xqxdata/district84.geojson")//district84.geojson
+                    .then(response => response.json())
+                    .then(provincesGeoJson => {
+                        // 注册省份边界地图
+                        echarts.registerMap("china_provinces", provincesGeoJson);
+                    
+                        let option = {
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function(params) {
+                                    if (!params.name) {
+                                        return ''; // 如果name为空，则不显示任何内容
+                                    }
+                                    return params.name + " 茶区<br>点击查看详情";
+                                }
+                            },
+                            series: [
+                                // 茶区
+                                {
+                                    type: 'map',
+                                    map: 'tea_zones',
+                                    roam: false,
+                                    label: { show: true, color: '#000' },
+                                    geoIndex:0,
+                                    boundingCoords:boundingCoords,
+                                    itemStyle:{
+                                        borderColor: '#9e9e9e',
+                                        borderWidth: 2,
+                                        areaColor:'#a8f186'
+                                    },
+                                    emphasis: {
+                                        label: { show: true, fontSize: 16, fontWeight: 'bold', color: '#000000'},
+                                        itemStyle:{ 
+                                            areaColor: '#487E7E',
+                                            borderColor: '#666',
+                                        },
+                                    z:2
+                                    },
+                                    data: [
+                                        { name: '华南茶区', value: 1 },
+                                        { name: '江南茶区', value: 1 },
+                                        { name: '西南茶区', value: 1 },
+                                        { name: '江北茶区', value: 1 }
+                                    ]
+                                },    
+                            // 背景行政区划（显示所有省份边界）
+                                {
+                                    type: 'map',
+                                    map: 'china_provinces',
+                                    roam: false,
+                                    geoIndex:0,
+                                    label:{show:false},
+                                    silent:true,
+                                    boundingCoords:boundingCoords,
+                                    itemStyle: {
+                                        borderColor: '#c3c3c3',
+                                        borderWidth: 1,
+                                        areaColor: 'rgba(255, 255, 255, 0)'// 透明
+                                    },
+                                    emphasis: { itemStyle: { areaColor: 'rgba(255, 255, 255, 0)' } }
+                                }
+                            ]
+
+                        };
+                    
+                        chart.setOption(option);
+                    })
+                    .catch(error => console.error("加载省份 geoJSON 失败:", error));
+                    
+                    // 监听鼠标悬停事件
+                    chart.on('mouseover', function(params) {
+                        console.log("鼠标悬停在", params.name, "茶区");
+                        // 触发外部动画（你可以在这里加入 GSAP.js 动画）
+                    });
+                
+                    // 监听点击事件
+                    chart.on('click', function(params) {
+                        console.log(params.name + " 茶区被点击");
+                        alert(params.name + " 茶文化即将上线！");
+                    });  
+            })
+            .catch(error=>console.error("加载geoJson失败:",error));
+    </script>
+</body>
+</html>
