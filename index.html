@@ -14,7 +14,7 @@
         let boundingCoords = [[73.557701,18.159306],[134.773926,53.560860]];
 
         // 加载 GeoJSON（茶区划分）
-        fetch("https://cdn.jsdelivr.net/gh/Michael-Rudalx/map-geojson-demo@master/releases/download/xqxdata/tea_nonan.geojson")//tea_nonan.geojson
+        fetch("https://michael-rudalx.github.io/map-geojson-demo/tea_nonan.geojson")//tea_nonan.geojson
         .then(response => {
                 console.log("GeoJSON 请求状态:", response.status);
                 return response.json();
@@ -23,7 +23,7 @@
                 console.log("GeoJSON 数据:", geoJson); // 调试用
                 echarts.registerMap("tea_zones", geoJson);
 
-                fetch("https://cdn.jsdelivr.net/gh/Michael-Rudalx/map-geojson-demo@master/releases/download/xqxdata/district84.geojson")//district84.geojson
+                fetch("https://michael-rudalx.github.io/map-geojson-demo/district84.geojson")//district84.geojson
                     .then(response => response.json())
                     .then(provincesGeoJson => {
                         // 注册省份边界地图
